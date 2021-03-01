@@ -110,7 +110,9 @@ namespace Lab1 {
         private static void Main(string[] args) {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            var sol = new Lab1(new float[3][], 1, 2, 3, 4, 0, 20);
+            var rand = new Random();
+            var sol = new Lab1(new float[3][], rand.Range(50, 1000), rand.Range(50, 1000), rand.Range(50, 1000),
+                rand.Range(50, 1000), 0, 20);
             sol.RunExperiment().ToArray().Print(true);
             stopwatch.Stop();
             Console.WriteLine();
