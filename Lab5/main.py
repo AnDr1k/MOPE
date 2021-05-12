@@ -3,6 +3,7 @@ import sklearn.linear_model as lm
 from scipy.stats import f, t
 from functools import partial
 from pyDOE2 import *
+import sys
 
 
 def regression(x, b):
@@ -160,6 +161,10 @@ def kriteriy_fishera(y, y_aver, y_new, n, m, d):
     S_kv = s_kv(y, y_aver, n, m)
     S_kv_aver = sum(S_kv) / n
 
+    if S_kv_aver.count == 3:
+        print("Модель не адекватна")
+        sys.exit()
+   
     return S_ad / S_kv_aver
 
 
