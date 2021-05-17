@@ -1,12 +1,17 @@
 import math
 import numpy
 import random
+import time
 from _decimal import Decimal
 from functools import reduce
 from itertools import compress
 from scipy.stats import f, t
 
 # Ініціалізація змінних
+FisherTime = 0
+StudentTime = 0
+CochranTime = 0
+
 xMin = [-30, -35, 0]
 xMax = [0, 10, 20]
 x0 = [(xMax[_] + xMin[_]) / 2 for _ in range(3)]
@@ -42,6 +47,26 @@ naturalPlanRaw = [[xMin[0], xMin[1], xMin[2]],
                   [x0[0], x0[1], 1.73 * dx[2] + x0[2]],
                   [x0[0], x0[1], x0[2]]]
 
+def timer(func):
+    def wrap_func(*args, **kwargs):
+        t1 = time()
+        result = func(*args, **kwargs)
+        t2 = time()
+        if func.__name__ == "cochranCriteria":
+            global CochranTime
+            CochranTime += t2 - t1
+
+        if func.__name__ == "studentCriteria":
+            global StudentTime
+            StudentTime += t2 - t1
+
+        if func.__name__ == "fisherCriteria":
+            global FisherTime
+            FisherTime += t2 - t1
+
+        return result
+
+    return wrap_func
 
 # Основні функції
 def equationRegres(x1, x2, x3, coefficients, importance=[True] * 11):
@@ -105,7 +130,7 @@ def findCoeffs(factors, y_values):
     betaCoeffs = numpy.linalg.solve(coefficients, freeVal)
     return list(betaCoeffs)
 
-
+@timer
 # Критерії
 def cochranCriteria(m, n, y_table):
     def getCochranVal(f1, f2, q):
@@ -157,7 +182,7 @@ def studentCriteria(m, n, y_table, betaCoeffs):
     printEquation(betaCoeffs, importance)
     return importance
 
-
+@timer
 def fisherCriteria(m, N, d, tableX, tableY, coeffsB, importance):
     def getFisherVal(f3, f4, q):
         return Decimal(abs(f.isf(q, f4, f3))).quantize(Decimal('.0001')).__float__()
@@ -200,4 +225,10 @@ def main(m, n):
 if __name__ == "__main__":
     m = 3
     n = 15
-    main(m, n)
+    count = 10
+    for i in range(count):
+        main(m, n)
+        
+    print(f"Середній час перевірки за критерієм Кохрена {CochranTime / count}")
+    print(f"Середній час перевірки за критерієм Стьюдента {StudentTime / count}")
+    print(f"Середній час перевірки за критерієм Фішера {FisherTime / count}")
